@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div id="app" class="container">
+        <table class="table mt-4">
+          <thead>
+            <tr>
+              <th>產品名稱</th>
+              <th width="120">原價</th>
+              <th width="120">售價</th>
+              <th width="150">是否啟用</th>
+              <th width="120">刪除</th>
+            </tr>
+          </thead>
+          <tbody id="productList"></tbody>
+        </table>
+        <p>目前有 <span id="productCount">0</span> 項產品</p>
+      </div>
+    </div>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js"
+      integrity="sha512-Xk3wWei2TGrsh9kDSBKUMIjw/86sLUvhtnv9f7fOuIwhhiUTKz8szkWkzHthrM5Bb3Bu9idSzkxOrkzhcneuiw=="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const app = {
+        data: {
+          api: "https://vue3-course-api.hexschool.io",
+          path: "get-mydata",
+          dataList: [],
+          page: 1,
+        },
+        init() {
+          const token = document.cookie.replace(
+            /(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/,
+            "$1"
+          );
+          //存token 值
+          axios.defaults.headers.common.Authorization = token;
+
+          this.getProductData();
+        },
+        //取得商品列表資料
+        getProductData() {
+          //目前第幾頁
+          const current_page = this.data.page;
+
+          //get Url
+          const url = `${this.data.api}/api/${this.data.path}/admin/products?page=${current_page}`;
+
+          // 打  Api
+          axios.get(url).then((res) => {
+            console.log("===res===", res);
+
+            if (res.data.success) {
+              this.data.dataList = res.data.products;
+              this.render();
+            } else {
+              //取資料失敗
+              this.data.dataList = [];
+            }
+          });
+        },
+        render() {
+          //商品資料列表
+          const productList = document.querySelector("#productList");
+          //商品總數
+          const productCount = document.querySelector("#productCount");
+
+          let str = "";
+          if (this.data.dataList.length > 0) {
+            this.data.dataList.forEach((item) => {
+              str += `
+                             <tr>
+                               <td>${item.title}</td>
+                               <td width="120">
+                                 ${item.origin_price}
+                               </td>
+                               <td width="120">
+                                 ${item.price}
+                               </td>
+                               <td width="100">
+                                 <span class="${
+                                   item.is_enabled
+                                     ? "text-success"
+                                     : "text-secondary"
+                                 }">${
+                item.is_enabled ? "啟用" : "未啟用"
+              }</span>
+                               </td>
+                               <td width="120">
+                                 <button type="button" class="btn btn-sm btn-outline-danger move deleteBtn" data-action="remove" data-id="${
+                                   item.id
+                                 }"> 刪除 </button>
+                               </td>
+                             </tr>`;
+            });
+          } else {
+            str += `<tr> 目前無資料</tr>`;
+          }
+          productList.innerHTML = str;
+          productCount.textContent = this.data.dataList.length;
+
+          const deleteBtn = document.querySelectorAll(".deleteBtn");
+
+          deleteBtn.forEach((item) => {
+            item.addEventListener("click", this.deleteData.bind(this));
+          });
+        },
+        deleteData(data) {
+          //刪除商品
+          const id = data.target.dataset.id;
+
+          if (window.confirm("確定要刪除嗎？")) {
+            const url = `${this.data.api}/api/${this.data.path}/admin/product/${id}`;
+
+            axios.delete(url).then((res) => {
+              console.log("===res===", res);
+              this.getProductData();
+            });
+          }
+        },
+      };
+
+      app.init();
+    </script>
+  </body>
+</html>
