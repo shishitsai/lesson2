@@ -17,8 +17,8 @@ export default {
                 </div>
                 <div class="col-sm-6">
                   <span class="badge bg-primary rounded-pill">{{ product.category }}</span>
-                  <p>商品描述：{{ product.description }}</p>
-                  <p>商品內容：{{ product.content }}</p>
+                  <p>商品描述：<p style="width: 90%; word-break: break-all;">{{ product.description }}</p></p>
+                  <p>商品內容：<p style="width: 90%; word-break: break-all;">{{ product.content }}</p></p>
                   <div class="h5" v-if="!product.price">{{ product.origin_price }} 元</div>
                   <del class="h6" v-if="product.price">原價 {{ product.origin_price }} 元</del>
                   <div class="h5" v-if="product.price">現在只要 {{ product.price }} 元</div>
