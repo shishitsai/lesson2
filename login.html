@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=
+  , initial-scale=1.0"
+    />
+    <title>Lesson II</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js"
+      integrity="sha512-Xk3wWei2TGrsh9kDSBKUMIjw/86sLUvhtnv9f7fOuIwhhiUTKz8szkWkzHthrM5Bb3Bu9idSzkxOrkzhcneuiw=="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="app">
+      <div class="container">
+        <div class="row justify-content-center">
+          <h1 class="h3 mb-3 font-weight-normal">請先登入</h1>
+          <div class="col-8">
+            <form id="form" class="form-signin">
+              <div class="form-floating mb-3">
+                <label for="username">Email address</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="username"
+                  placeholder="name@example.com"
+                  required
+                  autofocus
+                />
+              </div>
+              <div class="form-floating">
+                <label for="password">Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  placeholder="Password"
+                  required
+                />
+              </div>
+              <button
+                class="btn btn-lg btn-primary w-100 mt-3"
+                type="submit"
+                id="login_btn"
+              >
+                登入
+              </button>
+            </form>
+          </div>
+        </div>
+        <p class="mt-5 mb-3 text-muted">&copy; 2021~∞ - 六角學院</p>
+      </div>
+    </div>
+
+    <script>
+      //login 按鈕
+      const loginBtn = document.querySelector("#login_btn");
+      //帳號
+      const getUsername = document.querySelector("#username");
+      //密碼
+      const getPassword = document.querySelector("#password");
+
+      //Api url
+      const api = "https://vue3-course-api.hexschool.io";
+      //my file
+      const path = "get-mydata";
+
+      const app = {
+        init() {
+          loginBtn.addEventListener("click", this.login);
+        },
+        login(e) {
+          e.preventDefault();
+
+          //username
+          const username = getUsername.value;
+
+          //password
+          const password = getPassword.value;
+
+          // get data
+          const data = {
+            username,
+            password,
+          };
+          // 打Login Api
+          axios.post(`${api}/admin/signin`, data).then((res) => {
+            console.log("===res===", res);
+
+            if (res.data.success) {
+              const token = res.data.token;
+              const expired = res.data.expired;
+
+              //get Token 存到 Cookie
+              document.cookie = `hexToken=${token};expires=${new Date(
+                expired
+              )}; path=/`;
+
+              //登入成功後，導至產品頁
+              window.location.href = "products.html";
+            } else {
+              //登入失敗
+              alert(res.data.message);
+            }
+          });
+        },
+      };
+      app.init();
+    </script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        text-align: center;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .form-signin {
+        width: 100%;
+        max-width: 330px;
+        padding: 15px;
+        margin: auto;
+      }
+    </style>
+  </body>
+</html>
